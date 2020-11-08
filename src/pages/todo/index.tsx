@@ -48,6 +48,23 @@ class Todos extends Component<TodoProps, TodoState> {
     }, {}),
   };
 
+  async handleToggle(item: TodoItem) {
+    item.isComplete = !item.isComplete;
+
+    const res = await fetch(`/api/todo/${item.rowKey}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(item),
+    });
+    const content = await res.json();
+
+    this.setState((state) => {
+      const updatedState = { items: { ...state.items } };
+      updatedState.items[content.rowKey] = content;
+      return updatedState;
+    });
+  }
+
   render() {
     const session = this.props.session;
     console.log('state: ', this.state);
@@ -65,7 +82,7 @@ class Todos extends Component<TodoProps, TodoState> {
           const labelId = `checkbox-list-label-${item.rowKey}`;
 
           return (
-            <ListItem key={item.rowKey} role={undefined} dense button>
+            <ListItem key={item.rowKey} role={undefined} dense button onClick={() => this.handleToggle(item)}>
               <ListItemIcon>
                 <Checkbox
                   edge="start"
