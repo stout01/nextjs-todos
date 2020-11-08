@@ -11,14 +11,12 @@ import {
 } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
-import { getSession, Session } from 'next-auth/client';
+import { Session } from 'next-auth/client';
 import React, { Component } from 'react';
-import theme from '../../theme';
+import theme from '../theme';
 
 const styles = {
   root: {
-    width: '100%',
-    maxWidth: 360,
     backgroundColor: theme.palette.background.paper,
   },
 };
@@ -41,7 +39,7 @@ type TodoState = {
   addItemText: string;
 };
 
-class Todos extends Component<TodoProps, TodoState> {
+class TodoList extends Component<TodoProps, TodoState> {
   state: TodoState = {
     items: this.props.items?.reduce((dict, item) => {
       dict[item.rowKey] = item;
@@ -164,20 +162,4 @@ class Todos extends Component<TodoProps, TodoState> {
   }
 }
 
-export default withStyles(styles)(Todos);
-
-// This gets called on every request
-export async function getServerSideProps(context) {
-  const session = await getSession(context);
-  let content = null;
-
-  if (session) {
-    const hostname = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const options = { headers: { cookie: context.req.headers.cookie } };
-    const res = await fetch(`${hostname}/api/todo`, options);
-    content = await res.json();
-  }
-
-  // Pass data to the page via props
-  return { props: { items: content, session: session } };
-}
+export default withStyles(styles)(TodoList);
