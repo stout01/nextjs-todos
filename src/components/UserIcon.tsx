@@ -22,13 +22,13 @@ export default function UserIcon() {
           <Avatar alt={session.user.name} src={session.user.image}></Avatar>
         </IconButton>
         <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
-          <MenuItem onClick={signOut}>Logout</MenuItem>
+          <MenuItem onClick={() => signOut()}>Logout</MenuItem>
         </Menu>
       </>
     );
   } else {
     return (
-      <Button color="inherit" onClick={signIn}>
+      <Button color="inherit" onClick={() => signIn()}>
         Login
       </Button>
     );
