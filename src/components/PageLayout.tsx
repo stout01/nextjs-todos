@@ -1,6 +1,7 @@
-import { AppBar, Button, IconButton, makeStyles, Toolbar, Typography } from '@material-ui/core';
-import React from 'react';
+import { AppBar, IconButton, makeStyles, Toolbar, Typography } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
+import React from 'react';
+import UserIcon from './UserIcon';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -26,7 +27,7 @@ export default function PageLayout({ children }) {
           <Typography variant="h6" className={classes.title}>
             News
           </Typography>
-          <Button color="inherit">Login</Button>
+          <UserIcon></UserIcon>
         </Toolbar>
       </AppBar>
       {children}
