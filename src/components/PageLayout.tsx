@@ -25,7 +25,7 @@ export default function PageLayout({ children }) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" className={classes.title}>
-            News
+            Todos
           </Typography>
           <UserIcon></UserIcon>
         </Toolbar>
