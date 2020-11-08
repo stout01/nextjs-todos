@@ -1,0 +1,17 @@
+type Todo {
+  task: String!
+  completed: Boolean!
+  owner: users!
+}
+
+type users {
+  id: ID! @unique
+  email: String! @unique
+  name: String
+  image: String
+  todos: [Todo!] @relation
+}
+
+type Query {
+  allTodos: [Todo!]
+}
