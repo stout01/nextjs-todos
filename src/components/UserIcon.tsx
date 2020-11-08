@@ -13,7 +13,7 @@ export default function UserIcon() {
     setAnchorEl(null);
   };
 
-  if (typeof window !== 'undefined' && loading) return null;
+  if (loading) return null;
 
   if (session) {
     return (
