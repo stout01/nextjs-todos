@@ -65,11 +65,26 @@ class Todos extends Component<TodoProps, TodoState> {
     });
   }
 
+  async handleDelete(item: TodoItem) {
+    item.isComplete = !item.isComplete;
+
+    const res = await fetch(`/api/todo/${item.rowKey}`, {
+      method: 'DELETE',
+    });
+
+    this.setState((state) => {
+      const updatedState = { items: { ...state.items } };
+      delete updatedState.items[item.rowKey];
+
+      return updatedState;
+    });
+  }
+
   render() {
-    const session = this.props.session;
     console.log('state: ', this.state);
     console.log('props: ', this.props);
-    const { classes, items } = this.props;
+    const { classes, session } = this.props;
+    const items = Object.values(this.state.items);
 
     // If no session exists, display access denied message
     if (!session) {
@@ -93,7 +108,7 @@ class Todos extends Component<TodoProps, TodoState> {
                 />
               </ListItemIcon>
               <ListItemText id={labelId} primary={item.name} />
-              <ListItemSecondaryAction>
+              <ListItemSecondaryAction onClick={() => this.handleDelete(item)}>
                 <IconButton edge="end" aria-label="comments">
                   <DeleteIcon />
                 </IconButton>

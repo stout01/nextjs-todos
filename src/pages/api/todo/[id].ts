@@ -25,5 +25,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const updatedItem = await client.getEntity(todoItem.partitionKey, todoItem.rowKey);
     res.statusCode = 200;
     res.json(updatedItem);
+  } else if (req.method === 'DELETE') {
+    const rowKey = Array.isArray(req.query.id) ? req.query.id[0] : req.query.id;
+
+    await client.deleteEntity(session.user.email, rowKey);
+
+    res.status(204);
+    res.end();
   }
 };
