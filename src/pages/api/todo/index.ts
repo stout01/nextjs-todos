@@ -1,7 +1,9 @@
 import { odata, TableClient, TablesSharedKeyCredential } from '@azure/data-tables';
+import { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/client';
+import { v4 as uuidv4 } from 'uuid';
 
-export default async (req, res) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await getSession({ req });
   if (!session) {
     res.status(401);
@@ -20,15 +22,31 @@ export default async (req, res) => {
   const client = new TableClient(`https://${account}.table.core.windows.net`, tableName, credential);
 
   const partitionKey = session.user.email;
-  const todos = client.listEntities({
-    queryOptions: { filter: odata`PartitionKey eq ${partitionKey}` },
-  });
 
-  const todoArray = [];
-  for await (const todo of todos) {
-    todoArray.push(todo);
+  if (req.method === 'GET') {
+    const todos = client.listEntities({
+      queryOptions: { filter: odata`PartitionKey eq ${partitionKey}` },
+    });
+
+    const todoArray = [];
+    for await (const todo of todos) {
+      todoArray.push(todo);
+    }
+
+    res.statusCode = 200;
+    res.json(todoArray);
+  } else if (req.method === 'POST') {
+    const todo = req.body;
+    todo.partitionKey = partitionKey;
+    todo.rowKey = uuidv4();
+
+    await client.createEntity(todo);
+    const createdTodo = await client.getEntity(todo.partitionKey, todo.rowKey);
+
+    res.status(200);
+    res.json(createdTodo);
+  } else {
+    res.status(404);
+    res.end();
   }
-
-  res.statusCode = 200;
-  res.json(todoArray);
 };

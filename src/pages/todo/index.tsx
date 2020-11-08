@@ -38,6 +38,7 @@ type TodoProps = {
 };
 type TodoState = {
   items: { [key: string]: TodoItem }; // like this
+  addItemText: string;
 };
 
 class Todos extends Component<TodoProps, TodoState> {
@@ -46,6 +47,7 @@ class Todos extends Component<TodoProps, TodoState> {
       dict[item.rowKey] = item;
       return dict;
     }, {}),
+    addItemText: '',
   };
 
   async handleToggle(item: TodoItem) {
@@ -80,11 +82,35 @@ class Todos extends Component<TodoProps, TodoState> {
     });
   }
 
+  async handleAdd() {
+    const item: Partial<TodoItem> = {
+      name: this.state.addItemText,
+      isComplete: false,
+    };
+
+    const res = await fetch(`/api/todo`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(item),
+    });
+    const content = await res.json();
+
+    this.setState((state) => {
+      const updatedState = { items: { ...state.items }, addItemText: '' };
+      updatedState.items[content.rowKey] = content;
+
+      return updatedState;
+    });
+  }
+
+  handleAddItemChange(event) {
+    this.setState(() => ({ addItemText: event.target.value }));
+  }
+
   render() {
-    console.log('state: ', this.state);
-    console.log('props: ', this.props);
     const { classes, session } = this.props;
     const items = Object.values(this.state.items);
+    const addItemText = this.state.addItemText;
 
     // If no session exists, display access denied message
     if (!session) {
@@ -117,10 +143,21 @@ class Todos extends Component<TodoProps, TodoState> {
           );
         })}
         <ListItem role={undefined} dense button>
-          <ListItemIcon>
+          <ListItemIcon onClick={() => this.handleAdd()}>
             <AddCircleIcon />
           </ListItemIcon>
-          <TextField id="standard-basic" label="Standard" />
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              this.handleAdd();
+            }}
+          >
+            <TextField
+              value={addItemText}
+              onChange={(event) => this.handleAddItemChange(event)}
+              label="Add an item"
+            />
+          </form>
         </ListItem>
       </List>
     );

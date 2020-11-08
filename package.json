@@ -16,7 +16,8 @@
     "next-auth": "^3.1.0",
     "next-on-netlify": "^2.6.0",
     "react": "17.0.1",
-    "react-dom": "17.0.1"
+    "react-dom": "17.0.1",
+    "uuid": "^8.3.1"
   },
   "devDependencies": {
     "@types/next-auth": "^3.1.14",
