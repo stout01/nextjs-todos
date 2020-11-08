@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Todo({ items }) {
+function Todos({ items }) {
   const classes = useStyles();
   const [session, loading] = useSession();
 
@@ -77,7 +77,7 @@ export async function getServerSideProps(context) {
   if (session) {
     const hostname = process.env.NEXTAUTH_URL || 'http://localhost:3000';
     const options = { headers: { cookie: context.req.headers.cookie } };
-    const res = await fetch(`${hostname}/api/lists`, options);
+    const res = await fetch(`${hostname}/api/todo`, options);
     content = await res.json();
   }
 
@@ -85,4 +85,4 @@ export async function getServerSideProps(context) {
   return { props: { items: content } };
 }
 
-export default Todo;
+export default Todos;
