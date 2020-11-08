@@ -4,8 +4,8 @@ import { Provider } from 'next-auth/client';
 import Head from 'next/head';
 import PropTypes from 'prop-types';
 import React from 'react';
-import PageLayout from '../src/components/PageLayout';
-import theme from '../src/theme';
+import PageLayout from '../components/PageLayout';
+import theme from '../theme';
 
 export default function MyApp(props) {
   const { Component, pageProps } = props;

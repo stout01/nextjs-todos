@@ -1,6 +1,5 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import styles from '../styles/Home.module.css';
 import { Container, Link as MaterialLink } from '@material-ui/core';
 import React from 'react';
 import Grid from '@material-ui/core/Grid/Grid';
