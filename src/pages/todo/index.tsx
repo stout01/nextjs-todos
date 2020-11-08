@@ -6,68 +6,96 @@ import {
   ListItemIcon,
   ListItemSecondaryAction,
   ListItemText,
-  makeStyles,
   TextField,
+  withStyles,
 } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
-import { getSession, useSession } from 'next-auth/client';
-import React from 'react';
+import { getSession, Session } from 'next-auth/client';
+import React, { Component } from 'react';
+import theme from '../../theme';
 
-const useStyles = makeStyles((theme) => ({
+const styles = {
   root: {
     width: '100%',
     maxWidth: 360,
     backgroundColor: theme.palette.background.paper,
   },
-}));
+};
 
-function Todos({ items }) {
-  const classes = useStyles();
-  const [session, loading] = useSession();
+type TodoItem = {
+  partitionKey: string;
+  rowKey: string;
+  name: string;
+  isComplete: boolean;
+};
 
-  // When rendering client side don't display anything until loading is complete
-  if (loading) return null;
+type TodoProps = {
+  // using `interface` is also ok
+  items: Array<TodoItem>;
+  classes: any;
+  session?: Session;
+};
+type TodoState = {
+  items: { [key: string]: TodoItem }; // like this
+};
 
-  // If no session exists, display access denied message
-  if (!session) {
-    return <div>ACCESS DENIED!</div>;
+class Todos extends Component<TodoProps, TodoState> {
+  state: TodoState = {
+    items: this.props.items?.reduce((dict, item) => {
+      dict[item.rowKey] = item;
+      return dict;
+    }, {}),
+  };
+
+  render() {
+    const session = this.props.session;
+    console.log('state: ', this.state);
+    console.log('props: ', this.props);
+    const { classes, items } = this.props;
+
+    // If no session exists, display access denied message
+    if (!session) {
+      return <div>ACCESS DENIED!</div>;
+    }
+
+    return (
+      <List className={classes.root}>
+        {items.map((item) => {
+          const labelId = `checkbox-list-label-${item.rowKey}`;
+
+          return (
+            <ListItem key={item.rowKey} role={undefined} dense button>
+              <ListItemIcon>
+                <Checkbox
+                  edge="start"
+                  checked={item.isComplete}
+                  tabIndex={-1}
+                  disableRipple
+                  inputProps={{ 'aria-labelledby': labelId }}
+                />
+              </ListItemIcon>
+              <ListItemText id={labelId} primary={item.name} />
+              <ListItemSecondaryAction>
+                <IconButton edge="end" aria-label="comments">
+                  <DeleteIcon />
+                </IconButton>
+              </ListItemSecondaryAction>
+            </ListItem>
+          );
+        })}
+        <ListItem role={undefined} dense button>
+          <ListItemIcon>
+            <AddCircleIcon />
+          </ListItemIcon>
+          <TextField id="standard-basic" label="Standard" />
+        </ListItem>
+      </List>
+    );
   }
-
-  return (
-    <List className={classes.root}>
-      {items.map((item) => {
-        const labelId = `checkbox-list-label-${item.rowKey}`;
-
-        return (
-          <ListItem key={item.rowKey} role={undefined} dense button>
-            <ListItemIcon>
-              <Checkbox
-                edge="start"
-                checked={item.isComplete}
-                tabIndex={-1}
-                disableRipple
-                inputProps={{ 'aria-labelledby': labelId }}
-              />
-            </ListItemIcon>
-            <ListItemText id={labelId} primary={item.name} />
-            <ListItemSecondaryAction>
-              <IconButton edge="end" aria-label="comments">
-                <DeleteIcon />
-              </IconButton>
-            </ListItemSecondaryAction>
-          </ListItem>
-        );
-      })}
-      <ListItem role={undefined} dense button>
-        <ListItemIcon>
-          <AddCircleIcon />
-        </ListItemIcon>
-        <TextField id="standard-basic" label="Standard" />
-      </ListItem>
-    </List>
-  );
 }
+
+export default withStyles(styles)(Todos);
 
 // This gets called on every request
 export async function getServerSideProps(context) {
@@ -82,7 +110,5 @@ export async function getServerSideProps(context) {
   }
 
   // Pass data to the page via props
-  return { props: { items: content } };
+  return { props: { items: content, session: session } };
 }
-
-export default Todos;

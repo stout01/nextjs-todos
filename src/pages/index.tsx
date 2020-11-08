@@ -15,8 +15,8 @@ export default function Home() {
       <Container maxWidth="lg">
         <Grid container direction="row" justify="center" alignItems="center" alignContent="center">
           <Grid item xs={1}>
-            <Link href="/lists/2" passHref>
-              <MaterialLink>List Number 2</MaterialLink>
+            <Link href="/todo" passHref>
+              <MaterialLink>Your Todo List</MaterialLink>
             </Link>
           </Grid>
         </Grid>
