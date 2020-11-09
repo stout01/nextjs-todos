@@ -1,5 +1,5 @@
-import { Avatar, Button, IconButton, Menu, MenuItem } from '@material-ui/core';
-import { signIn, signOut, useSession } from 'next-auth/client';
+import { Avatar, IconButton, Menu, MenuItem } from '@material-ui/core';
+import { signOut, useSession } from 'next-auth/client';
 import React from 'react';
 
 export default function UserIcon() {
@@ -13,7 +13,7 @@ export default function UserIcon() {
     setAnchorEl(null);
   };
 
-  if (loading) return null;
+  if (loading || !session) return null;
 
   if (session) {
     return (
@@ -25,12 +25,6 @@ export default function UserIcon() {
           <MenuItem onClick={() => signOut()}>Logout</MenuItem>
         </Menu>
       </>
-    );
-  } else {
-    return (
-      <Button color="inherit" onClick={() => signIn()}>
-        Login
-      </Button>
     );
   }
 }

@@ -1,48 +1,28 @@
 import { Box, Button } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid/Grid';
-import { getSession, signIn, useSession } from 'next-auth/client';
+import { getProviders, getSession, useSession } from 'next-auth/client';
 import Head from 'next/head';
 import React from 'react';
+import defaultSignIn from '../auth/default-sign-in';
 import TodoList from '../components/TodoList';
 
-export default function Home({ items }) {
+export default function Home({ items, providers }) {
   const [session, loading] = useSession();
   if (loading) return null;
 
   let content;
   if (!loading && !session) {
     content = (
-      <Grid
-        container
-        spacing={0}
-        direction="column"
-        justify="center"
-        alignItems="center"
-        alignContent="center"
-        style={{ minHeight: '100%' }}
-      >
-        <Grid item lg={6} xs={12}>
-          <Box mt={4}>
-            <Button size="large" variant="contained" color="primary" onClick={() => signIn()}>
-              Login
-            </Button>
-          </Box>
-        </Grid>
-      </Grid>
+      <Box mt={4}>
+        <Button size="large" variant="contained" color="primary" onClick={() => defaultSignIn(providers)}>
+          Login
+        </Button>
+      </Box>
     );
   } else {
     content = (
-      <Grid
-        container
-        spacing={0}
-        justify="center"
-        alignItems="center"
-        alignContent="center"
-        style={{ minWidth: '100%' }}
-      >
-        <Grid item lg={6} xs={12}>
-          <TodoList session={session} items={items}></TodoList>
-        </Grid>
+      <Grid item lg={6} xs={12}>
+        <TodoList session={session} items={items}></TodoList>
       </Grid>
     );
   }
@@ -52,7 +32,9 @@ export default function Home({ items }) {
         <title>My Todos!</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {content}
+      <Grid container spacing={0} justify="center">
+        {content}
+      </Grid>
     </div>
   );
 }
@@ -60,6 +42,7 @@ export default function Home({ items }) {
 // This gets called on every request
 export async function getServerSideProps(context) {
   const session = await getSession(context);
+  const providers = await getProviders();
   let content = null;
 
   if (session) {
@@ -70,5 +53,5 @@ export async function getServerSideProps(context) {
   }
 
   // Pass data to the page via props
-  return { props: { items: content, session: session } };
+  return { props: { items: content, session, providers } };
 }
