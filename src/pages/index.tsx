@@ -1,5 +1,6 @@
+import { Box, Button } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid/Grid';
-import { getSession, useSession } from 'next-auth/client';
+import { getSession, signIn, useSession } from 'next-auth/client';
 import Head from 'next/head';
 import React from 'react';
 import TodoList from '../components/TodoList';
@@ -8,14 +9,29 @@ export default function Home({ items }) {
   const [session, loading] = useSession();
   if (loading) return null;
 
-  if (!loading && !session) return <p>Access Denied</p>;
-  return (
-    <div>
-      <Head>
-        <title>My Todos!</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
+  let content;
+  if (!loading && !session) {
+    content = (
+      <Grid
+        container
+        spacing={0}
+        direction="column"
+        justify="center"
+        alignItems="center"
+        alignContent="center"
+        style={{ minHeight: '100%' }}
+      >
+        <Grid item lg={6} xs={12}>
+          <Box mt={4}>
+            <Button size="large" variant="contained" color="primary" onClick={() => signIn()}>
+              Login
+            </Button>
+          </Box>
+        </Grid>
+      </Grid>
+    );
+  } else {
+    content = (
       <Grid
         container
         spacing={0}
@@ -28,6 +44,15 @@ export default function Home({ items }) {
           <TodoList session={session} items={items}></TodoList>
         </Grid>
       </Grid>
+    );
+  }
+  return (
+    <div>
+      <Head>
+        <title>My Todos!</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      {content}
     </div>
   );
 }
