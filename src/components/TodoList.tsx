@@ -1,19 +1,10 @@
-import {
-  Checkbox,
-  IconButton,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemSecondaryAction,
-  ListItemText,
-  TextField,
-  withStyles,
-} from '@material-ui/core';
+import { List, ListItem, ListItemIcon, TextField, withStyles } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import DeleteIcon from '@material-ui/icons/Delete';
 import { Session } from 'next-auth/client';
 import React, { Component } from 'react';
+import TodoItem from '../models/TodoItem';
 import theme from '../theme';
+import TodoListItem from './ListItem';
 
 const styles = {
   root: {
@@ -21,21 +12,13 @@ const styles = {
   },
 };
 
-type TodoItem = {
-  partitionKey: string;
-  rowKey: string;
-  name: string;
-  isComplete: boolean;
-};
-
 type TodoProps = {
-  // using `interface` is also ok
   items: Array<TodoItem>;
   classes: any;
   session?: Session;
 };
 type TodoState = {
-  items: { [key: string]: TodoItem }; // like this
+  items: { [key: string]: TodoItem };
   addItemText: string;
 };
 
@@ -48,7 +31,7 @@ class TodoList extends Component<TodoProps, TodoState> {
     addItemText: '',
   };
 
-  async handleToggle(item: TodoItem) {
+  handleToggle = async (item: TodoItem): Promise<void> => {
     item.isComplete = !item.isComplete;
 
     const res = await fetch(`/api/todo/${item.rowKey}`, {
@@ -63,12 +46,12 @@ class TodoList extends Component<TodoProps, TodoState> {
       updatedState.items[content.rowKey] = content;
       return updatedState;
     });
-  }
+  };
 
-  async handleDelete(item: TodoItem) {
+  handleDelete = async (item: TodoItem): Promise<void> => {
     item.isComplete = !item.isComplete;
 
-    const res = await fetch(`/api/todo/${item.rowKey}`, {
+    await fetch(`/api/todo/${item.rowKey}`, {
       method: 'DELETE',
     });
 
@@ -78,9 +61,9 @@ class TodoList extends Component<TodoProps, TodoState> {
 
       return updatedState;
     });
-  }
+  };
 
-  async handleAdd() {
+  handleAdd = async (): Promise<void> => {
     const item: Partial<TodoItem> = {
       name: this.state.addItemText,
       isComplete: false,
@@ -99,11 +82,11 @@ class TodoList extends Component<TodoProps, TodoState> {
 
       return updatedState;
     });
-  }
+  };
 
-  handleAddItemChange(event) {
+  handleAddItemChange = (event): void => {
     this.setState(() => ({ addItemText: event.target.value }));
-  }
+  };
 
   render() {
     const { classes, session } = this.props;
@@ -117,31 +100,16 @@ class TodoList extends Component<TodoProps, TodoState> {
 
     return (
       <List className={classes.root}>
-        {items.map((item) => {
-          const labelId = `checkbox-list-label-${item.rowKey}`;
-
-          return (
-            <ListItem key={item.rowKey} role={undefined} dense button onClick={() => this.handleToggle(item)}>
-              <ListItemIcon>
-                <Checkbox
-                  edge="start"
-                  checked={item.isComplete}
-                  tabIndex={-1}
-                  disableRipple
-                  inputProps={{ 'aria-labelledby': labelId }}
-                />
-              </ListItemIcon>
-              <ListItemText id={labelId} primary={item.name} />
-              <ListItemSecondaryAction onClick={() => this.handleDelete(item)}>
-                <IconButton edge="end" aria-label="comments">
-                  <DeleteIcon />
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
-          );
-        })}
+        {items.map((item) => (
+          <TodoListItem
+            key={item.rowKey}
+            item={item}
+            onDelete={() => this.handleDelete(item)}
+            onToggle={() => this.handleToggle(item)}
+          ></TodoListItem>
+        ))}
         <ListItem role={undefined} dense button>
-          <ListItemIcon onClick={() => this.handleAdd()}>
+          <ListItemIcon onClick={this.handleAdd}>
             <AddCircleIcon />
           </ListItemIcon>
           <form
@@ -150,11 +118,7 @@ class TodoList extends Component<TodoProps, TodoState> {
               this.handleAdd();
             }}
           >
-            <TextField
-              value={addItemText}
-              onChange={(event) => this.handleAddItemChange(event)}
-              label="Add an item"
-            />
+            <TextField value={addItemText} onChange={this.handleAddItemChange} label="Add an item" />
           </form>
         </ListItem>
       </List>
